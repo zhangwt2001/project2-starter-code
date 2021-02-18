@@ -4,15 +4,16 @@ package proj2
 // imports it will break the autograder, and we will be Very Upset.
 
 import (
-	"testing"
-	"reflect"
-	"github.com/cs161-staff/userlib"
-	_ "encoding/json"
 	_ "encoding/hex"
-	_ "github.com/google/uuid"
-	_ "strings"
+	_ "encoding/json"
 	_ "errors"
+	"reflect"
 	_ "strconv"
+	_ "strings"
+	"testing"
+
+	"github.com/cs161-staff/userlib"
+	_ "github.com/google/uuid"
 )
 
 func clear() {
@@ -78,7 +79,6 @@ func TestInvalidFile(t *testing.T) {
 	}
 }
 
-
 func TestShare(t *testing.T) {
 	clear()
 	u, err := InitUser("alice", "fubar")
@@ -94,9 +94,9 @@ func TestShare(t *testing.T) {
 
 	v := []byte("This is a test")
 	u.StoreFile("file1", v)
-	
+
 	var v2 []byte
-	var magic_string string
+	var accessToken string
 
 	v, err = u.LoadFile("file1")
 	if err != nil {
@@ -104,12 +104,12 @@ func TestShare(t *testing.T) {
 		return
 	}
 
-	magic_string, err = u.ShareFile("file1", "bob")
+	accessToken, err = u.ShareFile("file1", "bob")
 	if err != nil {
 		t.Error("Failed to share the a file", err)
 		return
 	}
-	err = u2.ReceiveFile("file2", "alice", magic_string)
+	err = u2.ReceiveFile("file2", "alice", accessToken)
 	if err != nil {
 		t.Error("Failed to receive the share message", err)
 		return

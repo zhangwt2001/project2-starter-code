@@ -179,7 +179,7 @@ func (userdata *User) LoadFile(filename string) (data []byte, err error) {
 // recipient can access the sharing record, and only the recipient
 // should be able to know the sender.
 func (userdata *User) ShareFile(filename string, recipient string) (
-	magic_string string, err error) {
+	accessToken string, err error) {
 
 	return
 }
@@ -189,7 +189,7 @@ func (userdata *User) ShareFile(filename string, recipient string) (
 // what the filename even is!  However, the recipient must ensure that
 // it is authentically from the sender.
 func (userdata *User) ReceiveFile(filename string, sender string,
-	magic_string string) error {
+	accessToken string) error {
 	return nil
 }
 
