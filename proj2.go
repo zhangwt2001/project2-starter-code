@@ -130,7 +130,7 @@ func GetUser(username string, password string) (userdataptr *User, err error) {
 //
 // The plaintext of the filename + the plaintext and length of the filename
 // should NOT be revealed to the datastore!
-func (userdata *User) StoreFile(filename string, data []byte) {
+func (userdata *User) StoreFile(filename string, data []byte) (err error) {
 
 	//TODO: This is a toy implementation.
 	UUID, _ := uuid.FromBytes([]byte(filename + userdata.Username)[:16])
