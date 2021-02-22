@@ -1,7 +1,7 @@
 package proj2
 
-// You MUST NOT change what you import.  If you add ANY additional
-// imports it will break the autograder, and we will be Very Upset.
+// You MUST NOT change these default imports.  ANY additional imports it will
+// break the autograder and everyone will be sad.
 
 import (
 	_ "encoding/hex"
@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/cs161-staff/userlib"
+	"github.com/google/uuid"
 	_ "github.com/google/uuid"
 )
 
@@ -96,7 +97,7 @@ func TestShare(t *testing.T) {
 	u.StoreFile("file1", v)
 
 	var v2 []byte
-	var accessToken string
+	var accessToken uuid.UUID
 
 	v, err = u.LoadFile("file1")
 	if err != nil {
@@ -124,5 +125,4 @@ func TestShare(t *testing.T) {
 		t.Error("Shared file is not the same", v, v2)
 		return
 	}
-
 }
