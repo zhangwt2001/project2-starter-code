@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog][Keep a Changelog] and this project adh
 
 ## [v0.2.0] - 2021-03-29
 ### Changed
-- Updated `userlib` dependency to `v0.2.0`.
+- Updated [userlib][userlib] dependency to `v0.2.0`.
 
 ---
 
@@ -21,6 +21,7 @@ CHANGELOG did not exist in this release.
 <!-- Links -->
 [Keep a Changelog]: https://keepachangelog.com/
 [Semantic Versioning]: https://semver.org/
+[userlib]: https://github.com/cs161-staff/project2-userlib/blob/master/CHANGELOG.md
 
 <!-- Versions -->
 [Unreleased]: https://github.com/cs161-staff/project2-starter-code/compare/v0.2.0...HEAD
