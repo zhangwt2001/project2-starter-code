@@ -23,7 +23,7 @@ CHANGELOG did not exist in this release.
 [Semantic Versioning]: https://semver.org/
 
 <!-- Versions -->
-[Unreleased]: https://github.com/cs161-staff/project2-starter-code/releases/v0.2.0...HEAD
+[Unreleased]: https://github.com/cs161-staff/project2-starter-code/compare/v0.2.0...HEAD
 [Released]: https://github.com/cs161-staff/project2-starter-code/releases
-[v0.2.0]: https://github.com/cs161-staff/project2-starter-code/releases/v0.1.0...v0.2.0
+[v0.2.0]: https://github.com/cs161-staff/project2-starter-code/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/cs161-staff/project2-starter-code/releases/v0.1.0
