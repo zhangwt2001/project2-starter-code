@@ -104,6 +104,7 @@ var _ = Describe("Client Tests", func() {
 		userlib.KeystoreClear()
 
 		userlib.SymbolicDebug = false
+		userlib.SymbolicVerbose = false
 	})
 
 	BeforeEach(func() {
