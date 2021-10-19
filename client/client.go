@@ -11,10 +11,10 @@ import (
 	// Likewise, useful for debugging, etc.
 	"encoding/hex"
 
-	// Useful for debug messages, or string manipulation for datastore keys.
+	// Useful for string mainpulation.
 	"strings"
 
-	// Useful for formatting strings
+	// Useful for formatting strings (e.g. `fmt.Sprintf`).
 	"fmt"
 
 	// Want to import errors.
