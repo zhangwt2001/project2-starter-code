@@ -6,8 +6,8 @@ require (
 	github.com/cs161-staff/project2-userlib v0.3.7
 
 	// These libraries provide testing capabilities beyond those built into golang
-	github.com/onsi/ginkgo v1.16.5-0.20210921182526-45ab7ed508d1
-	github.com/onsi/gomega v1.16.0
+	github.com/onsi/ginkgo v1.16.6-0.20211118180735-4e1925ba4c95
+	github.com/onsi/gomega v1.17.0
 )
 
 require (
