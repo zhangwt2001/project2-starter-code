@@ -8,60 +8,61 @@ package client
 import (
 	userlib "github.com/cs161-staff/project2-userlib"
 
-	// Likewise, useful for debugging, etc.
-	"encoding/hex"
+	// hex.EncodeToString(...) is useful for converting []byte to string
 
-	// Useful for string mainpulation.
+	// Useful for string manipulation
 	"strings"
 
 	// Useful for formatting strings (e.g. `fmt.Sprintf`).
 	"fmt"
 
-	// Want to import errors.
+	// Useful for creating new error messages to return using errors.New("...")
 	"errors"
 
-	// Optional. You can remove the "_" there, but please do not touch
-	// anything else within the import bracket.
+	// Optional.
 	_ "strconv"
 )
 
-// This serves two purposes:
-// a) It shows you some useful primitives, and
-// b) it suppresses warnings for items not being imported.
-
-// This function can be safely deleted!
+// This serves two purposes: it shows you a few useful primitives,
+// and suppresses warnings for imports not being used. It can be
+// safely deleted!
 func someUsefulThings() {
-	// Creates a random UUID
-	f := userlib.UUIDNew()
-	userlib.DebugMsg("UUID as string:%v", f.String())
 
-	// Example of writing over a byte of f
-	f[0] = 10
-	userlib.DebugMsg("UUID as string:%v", f.String())
+	// Creates a random UUID.
+	randomUUID := userlib.UUIDNew()
 
-	// Takes a sequence of bytes and renders as hex
-	h := hex.EncodeToString([]byte("fubar"))
-	userlib.DebugMsg("The hex: %v", h)
+	// Prints the UUID as a string. %v prints the value in a default format.
+	// See https://pkg.go.dev/fmt#hdr-Printing for all Golang format string flags.
+	userlib.DebugMsg("Random UUID: %v", randomUUID.String())
 
-	// Marshals data into a JSON representation
-	// Works well with Go structures!
-	d, _ := userlib.Marshal(f)
-	userlib.DebugMsg("The json data: %v", string(d))
-	var g userlib.UUID
-	userlib.Unmarshal(d, &g)
-	userlib.DebugMsg("Unmashaled data %v", g.String())
+	// Creates a UUID deterministically, from a sequence of bytes.
+	deterministicUUID := userlib.UUIDFromBytes([]byte("user-structs/alice"))
+	userlib.DebugMsg("Deterministic UUID: %v", deterministicUUID.String())
 
-	// errors.New(...) creates an error type!
-	userlib.DebugMsg("Creation of error %v", errors.New(strings.ToTitle("This is an error")))
+	// Declares a Course struct type, creates an instance of it, and marshals it into JSON.
+	type Course struct {
+		name      string
+		professor string
+	}
+	course := Course{"CS 161", "Nicholas Weaver"}
+	courseBytes, err := userlib.Marshal(course)
+	if err != nil {
+		// Normally, we would `return err` here. But, since this function doesn't return anything,
+		// we can just panic to terminate execution. ALWAYS, ALWAYS, ALWAYS check for errors!
+		panic(errors.New("An error occurred while marshalling a course: " + err.Error()))
+	}
+
+	userlib.DebugMsg("Struct: %v", course)
+	userlib.DebugMsg("JSON Data: %v", courseBytes)
 
 	// Generate a random private/public keypair.
 	// The "_" indicates that we don't check for the error case here.
 	var pk userlib.PKEEncKey
 	var sk userlib.PKEDecKey
 	pk, sk, _ = userlib.PKEKeyGen()
-	userlib.DebugMsg("Key is %v, %v", pk, sk)
+	userlib.DebugMsg("PKE Key Pair: (%v, %v)", pk, sk)
 
-	// Useful for string interpolation.
+	// A useful function for string interpolation.
 	_ = fmt.Sprintf("%s_%d", "file", 1)
 }
 

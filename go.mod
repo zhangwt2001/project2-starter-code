@@ -3,7 +3,7 @@ module github.com/cs161-staff/project2-starter-code
 go 1.17
 
 require (
-	github.com/cs161-staff/project2-userlib v0.3.7
+	github.com/cs161-staff/project2-userlib v0.3.8
 
 	// These libraries provide testing capabilities beyond those built into golang
 	github.com/onsi/ginkgo v1.16.6-0.20211118180735-4e1925ba4c95
