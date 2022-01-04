@@ -66,21 +66,25 @@ func someUsefulThings() {
 	_ = fmt.Sprintf("%s_%d", "file", 1)
 }
 
-// User is the structure definition for a user record.
+// This is the type definition for the User struct.
+// A Go struct is like a Python or Java class - it can have attributes
+// (e.g. like the Username attribute) and methods (e.g. like the StoreFile method below).
 type User struct {
 	Username string
 
-	// You can add other fields here if you want...
-	// Note for JSON to marshal/unmarshal, the fields need to
-	// be public (start with a capital letter)
+	// You can add other attributes here if you want! But note that in order for attributes to
+	// be included when this struct is serialized to/from JSON, they must be capitalized.
+	// On the flipside, if you have an attribute that you want to be able to access from
+	// this struct's methods, but you DON'T want that value to be included in the serialized value
+	// of this struct that's stored in datastore, then you can use a "private" variable (e.g. one that
+	// begins with a lowercase letter).
 }
+
+// NOTE: The following methods have toy implementations.
 
 func InitUser(username string, password string) (userdataptr *User, err error) {
 	var userdata User
-
-	// TODO: This is a toy implementation.
 	userdata.Username = username
-
 	return &userdata, nil
 }
 
@@ -91,12 +95,15 @@ func GetUser(username string, password string) (userdataptr *User, err error) {
 }
 
 func (userdata *User) StoreFile(filename string, content []byte) (err error) {
-
-	// TODO: This is a toy implementation.
-	storageKey, _ := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
-	jsonData, _ := userlib.Marshal(content)
-	userlib.DatastoreSet(storageKey, jsonData)
-
+	storageKey, err := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
+	if err != nil {
+		return err
+	}
+	contentBytes, err := userlib.Marshal(content)
+	if err != nil {
+		return err
+	}
+	userlib.DatastoreSet(storageKey, contentBytes)
 	return
 }
 
@@ -105,15 +112,16 @@ func (userdata *User) AppendToFile(filename string, content []byte) error {
 }
 
 func (userdata *User) LoadFile(filename string) (content []byte, err error) {
-
-	// TODO: This is a toy implementation.
-	storageKey, _ := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
+	storageKey, er := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
+	if err != nil {
+		return nil, err
+	}
 	dataJSON, ok := userlib.DatastoreGet(storageKey)
 	if !ok {
-		return nil, errors.New(strings.ToTitle("File not found!"))
+		return nil, errors.New(strings.ToTitle("file not found"))
 	}
-	userlib.Unmarshal(dataJSON, &content)
-	return content, nil
+	err = userlib.Unmarshal(dataJSON, &content)
+	return content, err
 }
 
 func (userdata *User) CreateInvitation(filename string, recipientUsername string) (
