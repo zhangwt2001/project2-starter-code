@@ -1,12 +1,12 @@
 package client_test
 
-// You MUST NOT change these default imports.  ANY additional imports it will
+// You MUST NOT change these default imports.  ANY additional imports may
 // break the autograder and everyone will be sad.
 
 import (
 	// Some imports use an underscore to prevent the compiler from complaining
 	// about unused imports. Normally, you will want to avoid underscore imports
-	// unless you know exactly what you are doing. You can read more about
+	// unless you know what you're doing. You can read more about
 	// underscore imports here: https://golangdocs.com/blank-identifier-in-golang
 	_ "encoding/hex"
 	_ "errors"
@@ -57,146 +57,204 @@ func TestSetupAndExecution(t *testing.T) {
 }
 
 // ================================================
-// Here are some optional global variables that can be used throughout the test
-// suite to make the tests more readable and maintainable than defining these
-// values in each test. You can add more variables here if you want and think
-// they will help keep your code clean!
+// Global Variables (feel free to add more!)
 // ================================================
-const someFilename = "file1.txt"
-const someOtherFilename = "file2.txt"
-const nonExistentFilename = "thisFileDoesNotExist.txt"
-
-const aliceUsername = "Alice"
-const alicePassword = "AlicePassword"
-const bobUsername = "Bob"
-const bobPassword = "BobPassword"
-const nilufarUsername = "Nilufar"
-const nilufarPassword = "NilufarPassword"
-const olgaUsername = "Olga"
-const olgaPassword = "OlgaPassword"
-const marcoUsername = "Marco"
-const marcoPassword = "MarcoPassword"
-
-const nonExistentUsername = "NonExistentUser"
-
-var alice *client.User
-var bob *client.User
-var nilufar *client.User
-var olga *client.User
-var marco *client.User
-
-var someFileContent []byte
-var someShortFileContent []byte
-var someLongFileContent []byte
+const defaultPassword = "password"
+const emptyString = ""
+const contentOne = "Bitcoin is Nick's favorite "
+const contentTwo = "digital "
+const contentThree = "cryptocurrency!"
 
 // ================================================
-// The top level Describe() contains all tests in
-// this test suite in nested Describe() blocks.
+// Describe(...) blocks help you organize your tests
+// into functional categories. They can be nested into
+// a tree-like structure.
 // ================================================
 
 var _ = Describe("Client Tests", func() {
+
+	// A few user declarations that may be used for testing. Remember to initialize these before you
+	// attempt to use them!
+	var alice *client.User
+	var bob *client.User
+	var charles *client.User
+	// var doris *client.User
+	// var eve *client.User
+	// var frank *client.User
+	// var grace *client.User
+	// var horace *client.User
+	// var ira *client.User
+
+	// These declarations may be useful for multi-session testing.
+	var alicePhone *client.User
+	var aliceLaptop *client.User
+	var aliceDesktop *client.User
+
+	var err error
+
+	// A bunch of filenames that may be useful.
+	aliceFile := "aliceFile.txt"
+	bobFile := "bobFile.txt"
+	charlesFile := "charlesFile.txt"
+	// dorisFile := "dorisFile.txt"
+	// eveFile := "eveFile.txt"
+	// frankFile := "frankFile.txt"
+	// graceFile := "graceFile.txt"
+	// horaceFile := "horaceFile.txt"
+	// iraFile := "iraFile.txt"
+
 	BeforeEach(func() {
-		// This top-level BeforeEach will be run before each test.
-		//
-		// Resets the state of Datastore and Keystore so that tests do not
-		// interfere with each other.
+		// This runs before each test within this Describe block (including nested tests).
+		// Here, we reset the state of Datastore and Keystore so that tests do not interfere with each other.
+		// We also initialize
 		userlib.DatastoreClear()
 		userlib.KeystoreClear()
-
-		userlib.SymbolicDebug = false
-		userlib.SymbolicVerbose = false
 	})
 
-	BeforeEach(func() {
-		// This top-level BeforeEach will be run before each test.
-		//
-		// Byte slices cannot be constant, so this BeforeEach resets the content of
-		// each global variable to a predefined value, which allows tests to rely on
-		// the expected value of these variables.
-		someShortFileContent = []byte("some short file content")
-		someFileContent = someShortFileContent
-		someLongFileContent = []byte("some LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONG file content")
+	Describe("Basic Tests", func() {
+
+		Specify("Basic Test: Testing InitUser/GetUser on a single user.", func() {
+			userlib.DebugMsg("Initializing user Alice.")
+			alice, err = client.InitUser("alice", defaultPassword)
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Getting user Alice.")
+			aliceLaptop, err = client.GetUser("alice", defaultPassword)
+			Expect(err).To(BeNil())
+		})
+
+		Specify("Basic Test: Testing Single User Store/Load/Append.", func() {
+			userlib.DebugMsg("Initializing user Alice.")
+			alice, err = client.InitUser("alice", defaultPassword)
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Storing file data: %s", contentOne)
+			err = alice.StoreFile(aliceFile, []byte(contentOne))
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Appending file data: %s", contentTwo)
+			err = alice.AppendToFile(aliceFile, []byte(contentTwo))
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Appending file data: %s", contentThree)
+			err = alice.AppendToFile(aliceFile, []byte(contentThree))
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Loading file...")
+			data, err := alice.LoadFile(aliceFile)
+			Expect(err).To(BeNil())
+			Expect(data).To(Equal([]byte(contentOne + contentTwo + contentThree)))
+		})
+
+		Specify("Basic Test: Testing Create/Accept Invite Functionality with multiple users and multiple instances.", func() {
+			userlib.DebugMsg("Initializing users Alice (aliceDesktop) and Bob.")
+			aliceDesktop, err = client.InitUser("alice", defaultPassword)
+			Expect(err).To(BeNil())
+
+			bob, err = client.InitUser("bob", defaultPassword)
+			Expect(err).To(BeNil())
+			
+			userlib.DebugMsg("Getting second instance of Alice - aliceLaptop")
+			aliceLaptop, err = client.GetUser("alice", defaultPassword)
+			Expect(err).To(BeNil())
+			
+			userlib.DebugMsg("aliceDesktop storing file %s with content: %s", aliceFile, contentOne)
+			err = aliceDesktop.StoreFile(aliceFile, []byte(contentOne))
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("aliceLaptop creating invite for Bob.")
+			invite, err := aliceLaptop.CreateInvitation(aliceFile, "bob")
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Bob accepting invite from Alice under filename %s.", bobFile)
+			err = bob.AcceptInvitation("alice", invite, bobFile)
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Bob appending to file %s, content: %s", bobFile, contentTwo)
+			err = bob.AppendToFile(bobFile, []byte(contentTwo))
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("aliceDesktop appending to file %s, content: %s", aliceFile, contentThree)
+			err = aliceDesktop.AppendToFile(aliceFile, []byte(contentThree))
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Checking that aliceDesktop sees expected file data.")
+			data, err := aliceDesktop.LoadFile(aliceFile)
+			Expect(err).To(BeNil())
+			Expect(data).To(Equal([]byte(contentOne + contentTwo + contentThree)))
+
+			userlib.DebugMsg("Checking that aliceLaptop sees expected file data.")
+			data, err = aliceLaptop.LoadFile(aliceFile)
+			Expect(err).To(BeNil())
+			Expect(data).To(Equal([]byte(contentOne + contentTwo + contentThree)))
+
+			userlib.DebugMsg("Checking that Bob sees expected file data.")
+			data, err = bob.LoadFile(bobFile)
+			Expect(err).To(BeNil())
+			Expect(data).To(Equal([]byte(contentOne + contentTwo + contentThree)))
+
+			userlib.DebugMsg("Getting third instance of Alice - alicePhone.")
+			alicePhone, err = client.GetUser("alice", defaultPassword)
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Checking that alicePhone sees Alice's changes.")
+			data, err = alicePhone.LoadFile(aliceFile)
+			Expect(err).To(BeNil())
+			Expect(data).To(Equal([]byte(contentOne + contentTwo + contentThree)))
+		})
+
+		Specify("Basic Test: Testing Revoke Functionality", func() {
+			userlib.DebugMsg("Initializing users Alice, Bob, and Charlie.")
+			alice, err = client.InitUser("alice", defaultPassword)
+			Expect(err).To(BeNil())
+
+			bob, err = client.InitUser("bob", defaultPassword)
+			Expect(err).To(BeNil())
+
+			charles, err = client.InitUser("charles", defaultPassword)
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Alice storing file %s with content: %s", aliceFile, contentOne)
+			alice.StoreFile(aliceFile, []byte(contentOne))
+
+			userlib.DebugMsg("Alice creating invite for Bob for file %s, and Bob accepting invite under name %s.", aliceFile, bobFile)
+			
+			invite, err := alice.CreateInvitation(aliceFile, "bob")
+			Expect(err).To(BeNil())
+
+			err = bob.AcceptInvitation("alice", invite, bobFile)
+			Expect(err).To(BeNil())
+			
+			userlib.DebugMsg("Bob creating invite for Charles for file %s, and Charlie accepting invite under name %s.", bobFile, charlesFile)
+			invite, err = bob.CreateInvitation(bobFile, "charles")
+			Expect(err).To(BeNil())
+
+			err = charles.AcceptInvitation("bob", invite, charlesFile)
+			Expect(err).To(BeNil())
+			
+			userlib.DebugMsg("Alice revoking Bob's access from %s.", aliceFile)
+			err = alice.RevokeAccess(aliceFile, "bob")
+			Expect(err).To(BeNil())
+
+			userlib.DebugMsg("Checking that Alice can still load the file.")
+			data, err := alice.LoadFile(aliceFile)
+			Expect(err).To(BeNil())
+			Expect(data).To(Equal([]byte(contentOne)))
+			
+			userlib.DebugMsg("Checking that Bob/Charles lost access to the file.")
+			_, err = bob.LoadFile(bobFile)
+			Expect(err).ToNot(BeNil())
+
+			_, err = charles.LoadFile(charlesFile)
+			Expect(err).ToNot(BeNil())
+
+			userlib.DebugMsg("Checking that the revoked users cannot append to the file.")
+			err = bob.AppendToFile(bobFile, []byte(contentTwo))
+			Expect(err).ToNot(BeNil())
+
+			err = charles.AppendToFile(charlesFile, []byte(contentTwo))
+			Expect(err).ToNot(BeNil())
+		})
+
 	})
-
-	Describe("Creating users", func() {
-		It("should not error when creating a new user", func() {
-			_, err := client.InitUser("Alice", "password")
-			Expect(err).To(BeNil(), "Failed to initialized user Alice.")
-		})
-
-		It("should error if a username is already taken by another user", func() {
-			// TODO: implement this function
-		})
-
-		It("should error if a user does not exist with that username", func() {
-			// TODO: implement function
-		})
-
-		// TODO: you probably want more test cases about creating users here
-	})
-
-	Describe("Single user storage", func() {
-		var alice *client.User
-
-		BeforeEach(func() {
-			// This BeforeEach will run before each test in this Describe block.
-			alice, _ = client.InitUser("Alice", "some password")
-		})
-
-		It("should upload content without erroring", func() {
-			content := []byte("This is a test")
-			err := alice.StoreFile("file1", content)
-			Expect(err).To(BeNil(), "Failed to upload content to a file", err)
-		})
-
-		It("should download the expected content that was previously uploaded", func() {
-			uploadedContent := []byte("This is a test")
-			alice.StoreFile(someFilename, uploadedContent)
-			downloadedContent, _ := alice.LoadFile(someFilename)
-			Expect(downloadedContent).To(BeEquivalentTo(uploadedContent),
-				"Downloaded content is not the same as uploaded content",
-				downloadedContent,
-				uploadedContent)
-		})
-
-		It("should error when trying to download a file that does not exist", func() {
-			_, err := alice.LoadFile(nonExistentFilename)
-			Expect(err).ToNot(BeNil(), "Was able to load a non-existent file without error.")
-		})
-
-		// TODO: you probably want more test cases for store/load/append with a
-		// 			 single user here
-	})
-
-	Describe("Sharing files", func() {
-
-		BeforeEach(func() {
-			// Initialize each user to ensure the variable has the expected value for
-			// the tests in this Describe() block.
-			alice, _ = client.InitUser(aliceUsername, alicePassword)
-			bob, _ = client.InitUser(bobUsername, bobPassword)
-			nilufar, _ = client.InitUser(nilufarUsername, nilufarPassword)
-			olga, _ = client.InitUser(olgaUsername, olgaPassword)
-			marco, _ = client.InitUser(marcoUsername, marcoPassword)
-		})
-
-		It("should share a file without erroring", func() {
-			alice.StoreFile(someFilename, someShortFileContent)
-			shareFileInfoPtr, err := alice.CreateInvitation(someFilename, bobUsername)
-			Expect(err).To(BeNil(), "Alice failed to share a file with Bob.")
-
-			err = bob.AcceptInvitation(aliceUsername, shareFileInfoPtr, someOtherFilename)
-			Expect(err).To(BeNil(), "Bob could not receive the file that Alice shared.")
-
-			downloadedContent, err := bob.LoadFile(someOtherFilename)
-			Expect(err).To(BeNil(), "Bob could not load the file that Alice shared.")
-			Expect(downloadedContent).To(BeEquivalentTo(someShortFileContent),
-				"The file contents that Bob downloaded was not the same as what Alice uploaded.")
-		})
-
-		// TODO: you probably want more test cases for sharing files here
-	})
-
-	// TODO: you probably want more Describe() blocks to contain tests related to
-	//       logical test groupings other than the ones suggested above
 })
