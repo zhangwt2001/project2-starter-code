@@ -36,7 +36,14 @@ func someUsefulThings() {
 	userlib.DebugMsg("Random UUID: %v", randomUUID.String())
 
 	// Creates a UUID deterministically, from a sequence of bytes.
-	deterministicUUID := userlib.UUIDFromBytes([]byte("user-structs/alice"))
+	deterministicUUID, err := userlib.UUIDFromBytes([]byte("user-structs/alice"))
+	if err != nil {
+		// Normally, we would `return err` here. But, since this function doesn't return anything,
+		// we can just panic to terminate execution. ALWAYS, ALWAYS, ALWAYS check for errors! Your
+		// code should have hundreds of "if err != nil { return err }" statements by the end of this
+		// project.
+		panic(errors.New("An error occurred while generating a UUID: " + err.Error()))
+	}
 	userlib.DebugMsg("Deterministic UUID: %v", deterministicUUID.String())
 
 	// Declares a Course struct type, creates an instance of it, and marshals it into JSON.
@@ -47,8 +54,6 @@ func someUsefulThings() {
 	course := Course{"CS 161", "Nicholas Weaver"}
 	courseBytes, err := userlib.Marshal(course)
 	if err != nil {
-		// Normally, we would `return err` here. But, since this function doesn't return anything,
-		// we can just panic to terminate execution. ALWAYS, ALWAYS, ALWAYS check for errors!
 		panic(errors.New("An error occurred while marshalling a course: " + err.Error()))
 	}
 
@@ -112,7 +117,7 @@ func (userdata *User) AppendToFile(filename string, content []byte) error {
 }
 
 func (userdata *User) LoadFile(filename string) (content []byte, err error) {
-	storageKey, er := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
+	storageKey, err := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
 	if err != nil {
 		return nil, err
 	}
