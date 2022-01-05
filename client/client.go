@@ -41,7 +41,7 @@ func someUsefulThings() {
 		// Normally, we would `return err` here. But, since this function doesn't return anything,
 		// we can just panic to terminate execution. ALWAYS, ALWAYS, ALWAYS check for errors! Your
 		// code should have hundreds of "if err != nil { return err }" statements by the end of this
-		// project.
+		// project. You probably want to avoid using panic statements in your own code.
 		panic(errors.New("An error occurred while generating a UUID: " + err.Error()))
 	}
 	userlib.DebugMsg("Deterministic UUID: %v", deterministicUUID.String())
@@ -49,12 +49,13 @@ func someUsefulThings() {
 	// Declares a Course struct type, creates an instance of it, and marshals it into JSON.
 	type Course struct {
 		name      string
-		professor string
+		professor []byte
 	}
-	course := Course{"CS 161", "Nicholas Weaver"}
+	
+	course := Course{"CS 161", []byte("Nicholas Weaver")}
 	courseBytes, err := userlib.Marshal(course)
 	if err != nil {
-		panic(errors.New("An error occurred while marshalling a course: " + err.Error()))
+		panic(err)
 	}
 
 	userlib.DebugMsg("Struct: %v", course)
@@ -67,7 +68,27 @@ func someUsefulThings() {
 	pk, sk, _ = userlib.PKEKeyGen()
 	userlib.DebugMsg("PKE Key Pair: (%v, %v)", pk, sk)
 
-	// A useful function for string interpolation.
+	// Here's an example of how to use HBKDF to generate a new key from an input key.
+	// Tip: generate a new key everywhere you possibly can! It's easier to generate new keys on the fly
+	// instead of trying to think about all of the ways a key reuse attack could be performed. It's also easier to
+	// store one key and derive multiple keys from that one key, rather than 
+	originalKey := userlib.RandomBytes(16)
+	derivedKey, err := userlib.HashKDF(originalKey, []byte("mac-key"))
+	if err != nil {
+		panic(err)
+	}
+	userlib.DebugMsg("Original Key: %v", originalKey)
+	userlib.DebugMsg("Derived Key: %v", derivedKey)
+
+	// A couple of tips on converting between string and []byte:
+	// To convert from string to []byte, use []byte("some-string-here")
+	// To convert from []byte to string for debugging, use fmt.Sprintf("hello world: %s", some_byte_arr).
+	// To convert from []byte to string for use in a hashmap, use hex.EncodeToString(some_byte_arr).
+	// When frequently converting between []byte and string, just marshal and unmarshal the data.
+	// 
+	// Read more: https://go.dev/blog/strings
+
+	// Here's an example of string interpolation!
 	_ = fmt.Sprintf("%s_%d", "file", 1)
 }
 
