@@ -5,9 +5,7 @@ package client_test
 
 import (
 	// Some imports use an underscore to prevent the compiler from complaining
-	// about unused imports. Normally, you will want to avoid underscore imports
-	// unless you know what you're doing. You can read more about
-	// underscore imports here: https://golangdocs.com/blank-identifier-in-golang
+	// about unused imports.
 	_ "encoding/hex"
 	_ "errors"
 	_ "strconv"
@@ -16,43 +14,17 @@ import (
 
 	// A "dot" import is used here so that the functions in the ginko and gomega
 	// modules can be used without an identifier. For example, Describe() and
-	// Expect() instead of ginko.Describe() and gomega.Expect(). You can read more
-	// about dot imports here:
-	// https://stackoverflow.com/questions/6478962/what-does-the-dot-or-period-in-a-go-import-statement-do
+	// Expect() instead of ginko.Describe() and gomega.Expect().
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	userlib "github.com/cs161-staff/project2-userlib"
 
-	// The client implementation is intentionally defined in a different package.
-	// This forces us to follow best practice and write tests that only rely on
-	// client API that is exported from the client package, and avoid relying on
-	// implementation details private to the client package.
 	"github.com/cs161-staff/project2-starter-code/client"
 )
 
 func TestSetupAndExecution(t *testing.T) {
-	// We are using 2 libraries to help us write readable and maintainable tests:
-	//
-	// (1) Ginkgo, a Behavior Driven Development (BDD) testing framework that
-	//             makes it easy to write expressive specs that describe the
-	//             behavior of your code in an organized manner; and
-	//
-	// (2) Gomega, an assertion/matcher library that allows us to write individual
-	//             assertion statements in tests that read more like natural
-	//             language. For example "Expect(ACTUAL).To(Equal(EXPECTED))".
-	//
-	// In the Ginko framework, a test case signals failure by calling Ginkgo’s
-	// Fail(description string) function. However, we are using the Gomega library
-	// to execute our assertion statements. When a Gomega assertion fails, Gomega
-	// calls a GomegaFailHandler, which is a function that must be provided using
-	// gomega.RegisterFailHandler(). Here, we pass Ginko's Fail() function to
-	// Gomega so that Gomega can report failed assertions to the Ginko test
-	// framework, which can take the appropriate action when a test fails.
-	//
-	// This is the sole connection point between Ginkgo and Gomega.
 	RegisterFailHandler(Fail)
-
 	RunSpecs(t, "Client Tests")
 }
 
@@ -153,11 +125,11 @@ var _ = Describe("Client Tests", func() {
 
 			bob, err = client.InitUser("bob", defaultPassword)
 			Expect(err).To(BeNil())
-			
+
 			userlib.DebugMsg("Getting second instance of Alice - aliceLaptop")
 			aliceLaptop, err = client.GetUser("alice", defaultPassword)
 			Expect(err).To(BeNil())
-			
+
 			userlib.DebugMsg("aliceDesktop storing file %s with content: %s", aliceFile, contentOne)
 			err = aliceDesktop.StoreFile(aliceFile, []byte(contentOne))
 			Expect(err).To(BeNil())
@@ -218,20 +190,20 @@ var _ = Describe("Client Tests", func() {
 			alice.StoreFile(aliceFile, []byte(contentOne))
 
 			userlib.DebugMsg("Alice creating invite for Bob for file %s, and Bob accepting invite under name %s.", aliceFile, bobFile)
-			
+
 			invite, err := alice.CreateInvitation(aliceFile, "bob")
 			Expect(err).To(BeNil())
 
 			err = bob.AcceptInvitation("alice", invite, bobFile)
 			Expect(err).To(BeNil())
-			
+
 			userlib.DebugMsg("Bob creating invite for Charles for file %s, and Charlie accepting invite under name %s.", bobFile, charlesFile)
 			invite, err = bob.CreateInvitation(bobFile, "charles")
 			Expect(err).To(BeNil())
 
 			err = charles.AcceptInvitation("bob", invite, charlesFile)
 			Expect(err).To(BeNil())
-			
+
 			userlib.DebugMsg("Alice revoking Bob's access from %s.", aliceFile)
 			err = alice.RevokeAccess(aliceFile, "bob")
 			Expect(err).To(BeNil())
@@ -240,7 +212,7 @@ var _ = Describe("Client Tests", func() {
 			data, err := alice.LoadFile(aliceFile)
 			Expect(err).To(BeNil())
 			Expect(data).To(Equal([]byte(contentOne)))
-			
+
 			userlib.DebugMsg("Checking that Bob/Charles lost access to the file.")
 			_, err = bob.LoadFile(bobFile)
 			Expect(err).ToNot(BeNil())
