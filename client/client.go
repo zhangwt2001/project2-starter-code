@@ -6,7 +6,10 @@ package client
 // may break the autograder!
 
 import (
+	"encoding/json"
+
 	userlib "github.com/cs161-staff/project2-userlib"
+	"github.com/google/uuid"
 
 	// hex.EncodeToString(...) is useful for converting []byte to string
 
@@ -29,14 +32,15 @@ import (
 func someUsefulThings() {
 
 	// Creates a random UUID.
-	randomUUID := userlib.UUIDNew()
+	randomUUID := uuid.New()
 
 	// Prints the UUID as a string. %v prints the value in a default format.
 	// See https://pkg.go.dev/fmt#hdr-Printing for all Golang format string flags.
 	userlib.DebugMsg("Random UUID: %v", randomUUID.String())
 
 	// Creates a UUID deterministically, from a sequence of bytes.
-	deterministicUUID, err := userlib.UUIDFromBytes([]byte("user-structs/alice"))
+	hash := userlib.Hash([]byte("user-structs/alice"))
+	deterministicUUID, err := uuid.FromBytes(hash[:16])
 	if err != nil {
 		// Normally, we would `return err` here. But, since this function doesn't return anything,
 		// we can just panic to terminate execution. ALWAYS, ALWAYS, ALWAYS check for errors! Your
@@ -51,9 +55,9 @@ func someUsefulThings() {
 		name      string
 		professor []byte
 	}
-	
+
 	course := Course{"CS 161", []byte("Nicholas Weaver")}
-	courseBytes, err := userlib.Marshal(course)
+	courseBytes, err := json.Marshal(course)
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +75,7 @@ func someUsefulThings() {
 	// Here's an example of how to use HBKDF to generate a new key from an input key.
 	// Tip: generate a new key everywhere you possibly can! It's easier to generate new keys on the fly
 	// instead of trying to think about all of the ways a key reuse attack could be performed. It's also easier to
-	// store one key and derive multiple keys from that one key, rather than 
+	// store one key and derive multiple keys from that one key, rather than
 	originalKey := userlib.RandomBytes(16)
 	derivedKey, err := userlib.HashKDF(originalKey, []byte("mac-key"))
 	if err != nil {
@@ -85,7 +89,7 @@ func someUsefulThings() {
 	// To convert from []byte to string for debugging, use fmt.Sprintf("hello world: %s", some_byte_arr).
 	// To convert from []byte to string for use in a hashmap, use hex.EncodeToString(some_byte_arr).
 	// When frequently converting between []byte and string, just marshal and unmarshal the data.
-	// 
+	//
 	// Read more: https://go.dev/blog/strings
 
 	// Here's an example of string interpolation!
@@ -106,7 +110,7 @@ type User struct {
 	// begins with a lowercase letter).
 }
 
-// NOTE: The following methods have toy implementations.
+// NOTE: The following methods have toy (insecure!) implementations.
 
 func InitUser(username string, password string) (userdataptr *User, err error) {
 	var userdata User
@@ -121,11 +125,11 @@ func GetUser(username string, password string) (userdataptr *User, err error) {
 }
 
 func (userdata *User) StoreFile(filename string, content []byte) (err error) {
-	storageKey, err := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
+	storageKey, err := uuid.FromBytes(userlib.Hash([]byte(filename + userdata.Username))[:16])
 	if err != nil {
 		return err
 	}
-	contentBytes, err := userlib.Marshal(content)
+	contentBytes, err := json.Marshal(content)
 	if err != nil {
 		return err
 	}
@@ -138,7 +142,7 @@ func (userdata *User) AppendToFile(filename string, content []byte) error {
 }
 
 func (userdata *User) LoadFile(filename string) (content []byte, err error) {
-	storageKey, err := userlib.UUIDFromBytes([]byte(filename + userdata.Username))
+	storageKey, err := uuid.FromBytes(userlib.Hash([]byte(filename + userdata.Username))[:16])
 	if err != nil {
 		return nil, err
 	}
@@ -146,16 +150,16 @@ func (userdata *User) LoadFile(filename string) (content []byte, err error) {
 	if !ok {
 		return nil, errors.New(strings.ToTitle("file not found"))
 	}
-	err = userlib.Unmarshal(dataJSON, &content)
+	err = json.Unmarshal(dataJSON, &content)
 	return content, err
 }
 
 func (userdata *User) CreateInvitation(filename string, recipientUsername string) (
-	invitationPtr userlib.UUID, err error) {
+	invitationPtr uuid.UUID, err error) {
 	return
 }
 
-func (userdata *User) AcceptInvitation(senderUsername string, invitationPtr userlib.UUID, filename string) error {
+func (userdata *User) AcceptInvitation(senderUsername string, invitationPtr uuid.UUID, filename string) error {
 	return nil
 }
 
